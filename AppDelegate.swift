@@ -34,3 +34,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+extension AnyHashable: @unchecked @retroactive Sendable {}

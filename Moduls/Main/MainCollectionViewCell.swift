@@ -40,7 +40,7 @@ class MainCollectionViewCell: UICollectionViewCell {
         labelDescription.rightToSuperview(space: -8)
         labelDescription.left(toAnchor: imageView.rightAnchor, space: 8)
         labelDescription.textColor = .gray
-//
+        
         contentView.addSubview(labelDateTime)
         labelDateTime.font = .systemFont(ofSize: 12, weight: .regular)
         labelDateTime.translatesAutoresizingMaskIntoConstraints = false
@@ -59,24 +59,5 @@ class MainCollectionViewCell: UICollectionViewCell {
         labelTitle.text = post.title
         labelDescription.text = post.content
         labelDateTime.text = post.publishedAt
-    }
-}
-class LoadingCVCell: CollectionCell {
-    
-    private let activityIndicator = UIActivityIndicatorView(style: .medium)
-    
-    override func setupView() {
-        super.setupView()
-        backgroundColor = .black
-        contentView.addSubview(activityIndicator)
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        activityIndicator.centerXToSuperview()
-        activityIndicator.centerYToSuperview()
-        activityIndicator.color = .white
-        activityIndicator.startAnimating()
-    }
-    
-    func start() {
-        activityIndicator.startAnimating()
     }
 }

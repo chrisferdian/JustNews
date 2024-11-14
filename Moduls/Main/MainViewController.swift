@@ -1,20 +1,17 @@
 //
 //  MainViewController.swift
 //  JustNews
-//
-//  Created by Indo Teknologi Utama on 14/11/24.
-//
+import UIKit
 
+// Enum defining the section type for the collection view
 enum GeneralSection {
     case main
-    case error
-    case loadingIndicator
 }
 
+// Type aliases for convenience with diffable data source
 typealias GeneralCDataSource = UICollectionViewDiffableDataSource<GeneralSection, AnyHashable>
 typealias GeneralCSnapshot = NSDiffableDataSourceSnapshot<GeneralSection, AnyHashable>
 
-import UIKit
 
 extension MainViewController {
     static func instantiate() -> MainViewController {
@@ -67,7 +64,6 @@ class MainViewController: UIViewController {
     private func configureCollectionView() -> UICollectionView {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         collectionView.register(MainCollectionViewCell.self)
-        collectionView.register(LoadingCVCell.self)
         collectionView.backgroundColor = .lightGray
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.contentInset = .zero
@@ -106,38 +102,11 @@ class MainViewController: UIViewController {
             section.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0)
             
             return section
-        case .loadingIndicator, .error:
-            // Define item size with a fixed height of 160
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(80))
-            
-            // Create an item with the defined size
-            let item = NSCollectionLayoutItem(layoutSize: itemSize)
-            
-            // Define the spacing between items (horizontal)
-            item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 5, bottom: 0, trailing: 5)
-            
-            // Create a group with 3 items in 1 row
-            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(80))
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-            
-            // Define the spacing between groups (vertical)
-            let section = NSCollectionLayoutSection(group: group)
-            section.interGroupSpacing = 10
-            
-            // Define the spacing between sections (rows)
-            section.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0)
-            
-            return section
         }
     }
     
     private func configureDataSource() -> GeneralCDataSource {
         let _dataSource = GeneralCDataSource(collectionView: collectionView) { collectionView, indexPath, itemIdentifier in
-            if self.snapshot.sectionIdentifiers[indexPath.section] == .loadingIndicator {
-                let indicatorCell: LoadingCVCell = collectionView.dequeue(at: indexPath)
-                indicatorCell.start()
-                return indicatorCell
-            }
             let cell: MainCollectionViewCell = collectionView.dequeue(at: indexPath)
             if let post = itemIdentifier as? Post {
                 cell.bind(with: post)
@@ -153,8 +122,9 @@ class MainViewController: UIViewController {
 extension MainViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //        if let movies = snapshot.itemIdentifiers(inSection: .main) as? [Movie] {
-        //            self.presenter.didTapMovie(movie: movies[indexPath.row])
-        //        }
+        if let posts = snapshot.itemIdentifiers(inSection: .main) as? [Post] {
+            let controller = DetailsViewController.instantiate(post: posts[indexPath.row])
+            self.navigationController?.pushViewController(controller, animated: true)
+        }
     }
 }

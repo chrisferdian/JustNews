@@ -7,36 +7,34 @@
 
 import Foundation
 
+// ViewModel Protocol and Implementation
 protocol IMainViewModel: AnyObject {
     func fetchNews()
     var posts: Observable<[Post]> { get }
     var state: Observable<ViewState> { get }
 }
-enum ViewState {
-    case success
-    case loading
-    case error((() -> Void))
-}
+
 class MainViewModel: IMainViewModel {
-    
-    
     let posts: Observable<[Post]> = .init([])
     var state: Observable<ViewState> = .init(.loading)
     
     func fetchNews() {
-        self.state.value = .loading
+        setState(with: .loading)
         NetworkingManager.shared.request(.posts, method: .get) { [weak self] (result: Result<[Post], Error>) in
             switch result {
             case .success(let result):
-                self?.state.value = .success
+                self?.setState(with: .success)
                 self?.posts.value = result
-            case .failure(let failure):
-                print(failure.localizedDescription)
-                self?.state.value = .error({
-                    self?.state.value = .loading
+            case .failure:
+                self?.state.value = .error {
                     self?.fetchNews()
-                })
+                }
             }
         }
+    }
+    
+    private func setState(with newState: ViewState) {
+        guard state.value != newState else { return }
+        state.value = newState
     }
 }
