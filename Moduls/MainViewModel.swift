@@ -15,7 +15,7 @@ protocol IMainViewModel: AnyObject {
 enum ViewState {
     case success
     case loading
-    case error
+    case error((() -> Void))
 }
 class MainViewModel: IMainViewModel {
     
@@ -27,12 +27,15 @@ class MainViewModel: IMainViewModel {
         self.state.value = .loading
         NetworkingManager.shared.request(.posts, method: .get) { [weak self] (result: Result<[Post], Error>) in
             switch result {
-            case .success(let success):
+            case .success(let result):
                 self?.state.value = .success
-                self?.posts.value = success
+                self?.posts.value = result
             case .failure(let failure):
                 print(failure.localizedDescription)
-                self?.state.value = .error
+                self?.state.value = .error({
+                    self?.state.value = .loading
+                    self?.fetchNews()
+                })
             }
         }
     }
